@@ -1,7 +1,8 @@
+// rsbuild.config.ts
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { ModuleFederationPlugin } from "@module-federation/enhanced/rspack";
-
+import { pluginSvgr } from "@rsbuild/plugin-svgr";
 export default defineConfig({
   server: {
     port: 2000,
@@ -12,13 +13,32 @@ export default defineConfig({
         new ModuleFederationPlugin({
           name: "federation_consumer",
           remotes: {
-            remote1:
-              "federation_provider@http://localhost:3000/mf-manifest.json",
+            federation_provider:
+              "federation_provider@https://0012pmmw-3000.uks1.devtunnels.ms//mf-manifest.json",
           },
-          shared: ["react", "react-dom"],
+          shared: [
+            {
+              react: {
+                singleton: true,
+              },
+            },
+            {
+              "react-dom": {
+                singleton: true,
+              },
+            },
+          ],
         }),
       ]);
     },
   },
-  plugins: [pluginReact()],
+  plugins: [
+    pluginReact({
+      splitChunks: {
+        react: false,
+        router: false,
+      },
+    }),
+    pluginSvgr(),
+  ],
 });
